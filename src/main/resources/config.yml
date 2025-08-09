@@ -7,3 +7,6 @@ extra-hearts: 5
 potion-effects:
   - "STRENGTH,1"
   - "FIRE_RESISTANCE,1"
+
+# Makes the egg holder glow
+glow-holder: true

@@ -1,6 +1,7 @@
 package io.github.mehzxzz.dragonEggBuffs;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -9,6 +10,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Team;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.HashSet;
 import java.util.List;
@@ -18,12 +21,25 @@ public class DragonEggBuffs extends JavaPlugin {
 
     private int extraHearts;
     private List<String> potionEffectsConfig;
+
+    private boolean glowHolder;
+
+    private final String teamName = "DragonEgg";
+    private final ChatColor teamColor = ChatColor.DARK_PURPLE;
+    private final String teamPrefix = "";
+
+    private Team dragonEggTeam;
+    private Scoreboard scoreboard;
+
     private final Set<Player> playersWithEgg = new HashSet<>();
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         loadConfig();
+
+        scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        setupTeam();
 
         new BukkitRunnable() {
             @Override
@@ -33,10 +49,14 @@ public class DragonEggBuffs extends JavaPlugin {
                     if (hasEgg) {
                         applyEffects(player);
                         playersWithEgg.add(player);
+                        addPlayerToTeam(player);
+                        if (glowHolder) player.setGlowing(true);
                     } else {
                         if (playersWithEgg.contains(player)) {
                             resetPlayerHealth(player);
                             playersWithEgg.remove(player);
+                            removePlayerFromTeam(player);
+                            if (glowHolder) player.setGlowing(false);
                         }
                     }
                 }
@@ -48,6 +68,16 @@ public class DragonEggBuffs extends JavaPlugin {
         FileConfiguration config = getConfig();
         extraHearts = config.getInt("extra-hearts", 4);
         potionEffectsConfig = config.getStringList("potion-effects");
+        glowHolder = config.getBoolean("glow-holder", true);
+    }
+
+    private void setupTeam() {
+        dragonEggTeam = scoreboard.getTeam(teamName);
+        if (dragonEggTeam == null) {
+            dragonEggTeam = scoreboard.registerNewTeam(teamName);
+        }
+        dragonEggTeam.setPrefix(teamPrefix);
+        dragonEggTeam.setColor(teamColor);
     }
 
     private boolean hasDragonEgg(Player player) {
@@ -85,29 +115,22 @@ public class DragonEggBuffs extends JavaPlugin {
         }
     }
 
-    @Override
-    public boolean onCommand(org.bukkit.command.CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("dragoneggbuffs")) {
-            if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-                if (!sender.hasPermission("dragoneggbuffs.reload")) {
-                    sender.sendMessage("§cYou do not have permission to reload the config.");
-                    return true;
-                }
-                reloadConfig();
-                loadConfig();
-                sender.sendMessage("§5DragonEggBuffs config reloaded.");
-                return true;
-            }
-            sender.sendMessage("§cUsage: /dragoneggbuffs reload");
-            return true;
-        }
-        return false;
-    }
-
     private void resetPlayerHealth(Player player) {
         player.setMaxHealth(20.0);
         if (player.getHealth() > 20.0) {
             player.setHealth(20.0);
+        }
+    }
+
+    private void addPlayerToTeam(Player player) {
+        if (!dragonEggTeam.hasEntry(player.getName())) {
+            dragonEggTeam.addEntry(player.getName());
+        }
+    }
+
+    private void removePlayerFromTeam(Player player) {
+        if (dragonEggTeam.hasEntry(player.getName())) {
+            dragonEggTeam.removeEntry(player.getName());
         }
     }
 }
