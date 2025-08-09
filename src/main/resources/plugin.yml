@@ -1,0 +1,15 @@
+name: DragonEggBuffs
+version: '1.0.0'
+main: io.github.mehzxzz.dragonEggBuffs.DragonEggBuffs
+api-version: '1.21'
+authors: [ Mehzxzz ]
+description: Gives the dragon egg special effects/extra hearts to make it more powerful!
+commands:
+  dragoneggbuffs:
+    description: Manage the DragonEggBuffs plugin
+    usage: /<command> reload
+    aliases: [deb]
+permissions:
+  dragoneggbuffs.reload:
+    description: Allows reloading the DragonEggBuffs config
+    default: op

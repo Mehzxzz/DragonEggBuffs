@@ -1,0 +1,9 @@
+# Number of extra hearts granted when player has the Dragon Egg.
+extra-hearts: 5
+
+# List of potion effects applied when player has the Dragon Egg.
+# Format: "EFFECT_NAME,LEVEL"
+# Example: "FIRE_RESISTANCE,1" means Fire Resistance I
+potion-effects:
+  - "STRENGTH,1"
+  - "FIRE_RESISTANCE,1"
